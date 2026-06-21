@@ -43,6 +43,7 @@ test("cart badge appears after adding product", async ({ page }) => {
   await page.locator("[data-test=\"add-to-cart-sauce-labs-backpack\"]").click();   // ← something missing here
 
   await expect(page.locator(".shopping_cart_badge")).toHaveText("1");
+  123456
 });
 })
 //Root cause: Missing "await" before page.locator(...).click()
