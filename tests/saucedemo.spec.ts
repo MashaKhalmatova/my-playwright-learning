@@ -106,7 +106,6 @@ test.describe("SauceDemo", () => {
         await page.getByRole("button", { name: "Login" }).click();
         await expect(
         page.getByText("Epic sadface: Sorry, this user has been locked out."),).toBeVisible();
-        test.only
     })
     
 })
