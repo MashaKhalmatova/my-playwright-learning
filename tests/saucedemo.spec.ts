@@ -108,3 +108,63 @@ test.describe("SauceDemo", () => {
         page.getByText("Epic sadface: Sorry, this user has been locked out."),).toBeVisible();
     })
 })
+
+test.describe("SauceDemoStage", () => {
+
+ test.beforeEach(async ({ page }) => {
+    await page.goto('/'); 
+  })
+      test("Login (happy path)", async ({ page }) => { 
+        await page.getByPlaceholder("Username").fill(sauceUser.user);
+        await page.getByPlaceholder("Password").fill(sauceUser.password);
+        await page.getByRole("button", { name: "Login" }).click();
+        await expect(page).toHaveURL(/inventory/);
+    })
+        test("Login (locked user)", async ({ page }) => { 
+        await page.getByPlaceholder("Username").fill("locked_out_user");
+        await page.getByPlaceholder("Password").fill("secret_sauce");
+        await page.getByRole("button", { name: "Login" }).click();
+        await expect(
+        page.getByText("Epic sadface: Sorry, this user has been locked out."),).toBeVisible();
+    })
+        test("Add 2 productsto cart", async ({ page }) => {
+        await page.getByPlaceholder("Username").fill(sauceUser.user);
+        await page.getByPlaceholder("Password").fill(sauceUser.password);
+        await page.getByRole("button", { name: "Login" }).click();
+
+        await page.getByRole("button", { name: "Add to cart" }).nth(0).click();
+        await page.getByRole("button", { name: "Add to cart" }).nth(1).click();        
+        await expect(
+        page.locator(".shopping_cart_badge"),
+        "Cart badge should show 2 after adding two products").toHaveText("2");
+    })
+    test("Remove product from cart", async ({ page }) => {
+        await page.getByPlaceholder("Username").fill(sauceUser.user);
+        await page.getByPlaceholder("Password").fill(sauceUser.password);
+        await page.getByRole("button", { name: "Login" }).click();
+
+        await page.getByRole("button", { name: "Add to cart" }).nth(0).click();
+        await page.getByRole("button", { name: "Add to cart" }).nth(1).click();   
+        await page.getByRole("button", { name: "Remove" }).nth(1).click();
+       await expect(
+        page.locator(".shopping_cart_badge"),
+        "Cart badge should show 1 after removing one product").toHaveText("1");
+    }) 
+    test("Complete checkout and see success message", async ({ page }) => {
+        await page.getByPlaceholder("Username").fill(sauceUser.user);
+        await page.getByPlaceholder("Password").fill(sauceUser.password);
+        await page.getByRole("button", { name: "Login" }).click();
+
+        await page.getByRole("button", { name: "Add to cart" }).nth(0).click();
+        await page.locator('[data-test="shopping-cart-link"]').click();
+        await page.getByRole("button", { name: "Checkout" }).click();
+        await page.getByPlaceholder("First Name").fill("Mariia");
+        await page.getByPlaceholder("Last Name").fill("Khalmatova");
+        await page.getByPlaceholder("Zip/Postal Code").fill("12345");
+        await page.getByRole("button", { name: "Continue" }).click();
+        await page.getByRole("button", { name: "Finish" }).click();
+        await expect(
+        page.getByText("THANK YOU FOR YOUR ORDER"),).toBeVisible();
+      
+    }) 
+  })
