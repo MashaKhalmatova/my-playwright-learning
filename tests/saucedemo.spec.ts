@@ -99,4 +99,12 @@ test.describe("SauceDemo", () => {
       'Cart badge should still show 1 after page refresh'
     ).toHaveText('1')
     })
+
+        test("Task 6 — Login (locked user)", async ({ page }) => { 
+        await page.getByPlaceholder("Username").fill("locked_out_user");
+        await page.getByPlaceholder("Password").fill("secret_sauce");
+        await page.getByRole("button", { name: "Login" }).click();
+        await expect(
+        page.getByText("Epic sadface: Sorry, this user has been locked out."),).toBeVisible();
+    })
 })
