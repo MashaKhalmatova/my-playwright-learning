@@ -1,56 +1,61 @@
 import { type Locator, type Page } from "@playwright/test";
 
+// Объект страницы каталога товаров и действий с товарами
 export class InventoryPage {
   readonly page: Page;
   readonly cartBadge: Locator;
   readonly cartLink: Locator;
   readonly sortDropdown: Locator;
   readonly productPrices: Locator;
+  readonly productItem: Locator;
+  readonly productName: Locator;
 
+  // Инициализируем локаторы страницы каталога
   constructor(page: Page) {
-    // Инициализируем локаторы страницы каталога товаров
     this.page = page;
-    this.cartBadge = page.locator(".shopping_cart_badge");
-    this.cartLink = page.locator(".shopping_cart_link");
-    this.sortDropdown = page.locator(".product_sort_container");
-    this.productPrices = page.locator(".inventory_item_price");
+    this.cartBadge = page.locator('[data-test="shopping-cart-badge"]');
+    this.cartLink = page.locator('[data-test="shopping-cart-link"]');
+    this.sortDropdown = page.locator('[data-test="product-sort-container"]');
+    this.productPrices = page.locator('[data-test="inventory-item-price"]');
+    this.productItem = page.locator('[data-test="inventory-item"]');
+    this.productName = page.locator('[data-test="inventory-item-name"]');
   }
 
+  // Переходим на страницу каталога товаров
   async open() {
-    // Переходим на страницу инвентаря
     await this.page.goto("/inventory.html");
   }
 
+  // Добавляем товар в корзину по названию
   async addProduct(productName: string) {
-    // Добавляем товар в корзину по названию
-    const productCard = this.page.locator(".inventory_item").filter({
-      has: this.page.locator(".inventory_item_name", { hasText: productName }),
+    const productCard = this.productItem.filter({
+      has: this.productName.filter({ hasText: productName }),
     });
 
     await productCard.getByRole("button").click();
   }
 
-  async removeProduct(productName: string) {
-    // Удаляем товар из корзины с каталога
-    const productCard = this.page.locator(".inventory_item").filter({
-      has: this.page.locator(".inventory_item_name", { hasText: productName }),
+  // Удаляем товар со страницы каталога по названию
+  async removeInventoryProduct(productName: string) {
+    const productCard = this.productItem.filter({
+      has: this.productName.filter({ hasText: productName }),
     });
 
     await productCard.getByRole("button").click();
   }
 
+  // Открываем корзину со страницы каталога
   async openCart() {
-    // Открываем страницу корзины
     await this.cartLink.click();
   }
 
+  // Сортируем товары по цене от низкой к высокой
   async sortByPriceLowToHigh() {
-    // Применяем сортировку по возрастанию цены
     await this.sortDropdown.selectOption("lohi");
   }
 
+  // Считываем все цены товаров и возвращаем их числами
   async getPrices() {
-    // Собираем все цены товаров со страницы
     const pricesText = await this.productPrices.allTextContents();
     return pricesText.map((price) => Number(price.replace("$", "")));
   }
